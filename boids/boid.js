@@ -121,6 +121,7 @@ class Boid {
         this.acceleration.add(this.align(flock).mult(this.alignmentBias));
         this.acceleration.add(this.cohere(flock).mult(this.cohesionBias));
         this.acceleration.add(this.separate(flock).mult(this.seperationBias));
+        //this.acceleration.add(this.forage(flock));
         this.colorify(flock);
     }
 
@@ -233,8 +234,12 @@ class Boid {
     }
 
     eat(foodList) {
+        let nearestFood; // TODO: ok to use this uninitialized?
+        let steer = createVector();
+
         for (let food of foodList) {
             let dist = this.position.dist(food.position);
+            
             // food consumed
             if (dist < food.size) {
                 //remove food from foodList
@@ -243,8 +248,34 @@ class Boid {
                 foodList.splice(idx, 1);
                 // give foodSize to boid
                 this.size += food.size / 2;
-            }
+                }
             }
         }
+    }
+
+    forage(foodList) {
+        let nearestFood; // TODO: ok to use this uninitialized?
+        let steer = createVector();
+
+        for (let food of foodList) {
+            let dist = this.position.dist(food.position);
+            
+            // seek food: determine the nearest food and steer towards it
+            if (dist < this.perceptionRadius) {
+                if (nearestFood) {
+                    // set new nearestFood target
+                    if (dist < this.position.dist(nearestFood.position)) {
+                        nearestFood = food;
+                    }
+                } else {
+                    nearestFood = food;
+                }
+            }
+        }
+
+        steer.setMag(this.maxSpeed);
+        steer.sub(this.velocity);
+        steer.limit(this.maxForce);
+        return steer;
     }
 }
