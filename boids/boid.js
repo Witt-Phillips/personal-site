@@ -1,3 +1,24 @@
+/*
+Flock
+    * constructor(size) - Initializes a new `Flock` instance with a specified number of boids. Arguments: `size` (number): The number of boids to generate in the flock. Returns: A new instance of `Flock`.
+    * genBoid(x, y) - Generates a new boid at the specified coordinates and adds it to the flock. Arguments: `x` (number): The x-coordinate for the new boid. `y` (number): The y-coordinate for the new boid. Returns: void.
+    * run(foodList) - Runs the simulation for the flock, making each boid perform its actions and rendering them. Arguments: `foodList` (object): The list of food items available for the boids. Returns: void.
+
+Boid
+    * constructor(x, y) - Initializes a new `Boid` instance at the specified coordinates. Arguments: `x` (number): The x-coordinate for the new boid. `y` (number): The y-coordinate for the new boid. Returns: A new instance of `Boid`.
+    * update(flock) - Updates the boid's position, handles wrapping around the screen, and checks for shrinking and dividing. Arguments: `flock` (object): The flock object containing all boids. Returns: boolean (true if the boid is still active, false if it should be removed).
+    * wrap() - Wraps the boid around the screen edges if it goes out of bounds and changes its color. Arguments: None. Returns: void.
+    * draw() - Draws the boid on the canvas. Arguments: None. Returns: void.
+    * flock(flock) - Applies flocking behavior to the boid by calculating alignment, cohesion, and separation forces. Arguments: `flock` (object): The flock object containing all boids. Returns: void.
+    * align(flock) - Calculates the alignment force for the boid. Arguments: `flock` (object): The flock object containing all boids. Returns: p5.Vector (alignment force).
+    * cohere(flock) - Calculates the cohesion force for the boid. Arguments: `flock` (object): The flock object containing all boids. Returns: p5.Vector (cohesion force).
+    * separate(flock) - Calculates the separation force for the boid. Arguments: `flock` (object): The flock object containing all boids. Returns: p5.Vector (separation force).
+    * colorify(flock) - Adjusts the color of the boid based on the average color of nearby boids. Arguments: `flock` (object): The flock object containing all boids. Returns: void.
+    * avoidObjects(objects) - Calculates the avoidance force to keep the boid away from objects. Arguments: `objects` (array): Array of objects to avoid. Returns: p5.Vector (avoidance force).
+    * eat(foodList) - Consumes food if it is within range and grows the boid. Arguments: `foodList` (array): The list of food items. Returns: void.
+    * forage(foodList) - Seeks the nearest food within the perception radius and steers towards it. Arguments: `foodList` (array): The list of food items. Returns: void.
+*/
+
 class Flock {
     constructor(size) {
         this.list = [];
@@ -32,7 +53,7 @@ class Boid {
         
         // attributes
         this.color = createVector(random(255), random(255), random(255));
-        this.size = 15;
+        this.size = 15; // proxy for mass
         this.maxForce = .05;
         this.maxSpeed = 4;
         this.perceptionRadius = 80;
@@ -48,7 +69,7 @@ class Boid {
         // biases
         this.alignmentBias = 1;
         this.cohesionBias = 1;
-        this.seperationBias = 1.7;
+        this.seperationBias = 1;
         this.forageBias = 1;
     }
 
@@ -237,12 +258,13 @@ class Boid {
         return steer;
     }
 
+/*     // deprecated: update for consume animation.
     eat(foodList) {
         for (let food of foodList) {
             let dist = this.position.dist(food.position);
             
             // food consumed
-            if (dist < food.size) {
+            if (food.consumed == false && dist < food.size) {
                 //remove food from list
                 let idx = foodList.indexOf(food);
                 if (idx != -1) {
@@ -252,6 +274,23 @@ class Boid {
                 this.size += food.size / 2;
                 console.log("boid ate, now size: ", this.size);
                 }
+            }
+        }
+    } */
+
+    // deprecated: update for consume animation.
+    eat(foodList) {
+        for (let food of foodList) {
+            let dist = this.position.dist(food.position);
+            
+            // food consumed
+            if (food.consumed == false && dist < food.size) {
+                //remove food from list
+                food.consumed = true;
+                
+                // grow boid
+                this.size += food.size / 2;
+                //console.log("boid ate, now size: ", this.size);
             }
         }
     }
