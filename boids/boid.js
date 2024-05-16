@@ -1,4 +1,5 @@
 
+// comment testing
 class Boid {
     /* Utils */
     constructor() {
