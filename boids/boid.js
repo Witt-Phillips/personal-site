@@ -175,13 +175,16 @@ class Boid {
             let dist = this.position.dist(other.position);
             if ((dist < this.perceptionRadius) && (other != this)) {
                 let diff = p5.Vector.sub(this.position, other.position);
-                diff.div(dist);
-                steer.add(diff);
+                // catch just divided case
+                if (dist != 0) {
+                    diff.div(dist);
+                    steer.add(diff);
+                }
                 i++;
             }
         }
         
-        if (i != 0) {
+        if (i != 0 && steer.mag != 0) {
             steer.div(i);
             steer.setMag(this.maxSpeed);
             steer.sub(this.velocity);

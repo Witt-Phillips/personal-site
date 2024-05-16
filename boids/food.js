@@ -22,8 +22,7 @@ class FoodList {
 
 class Food {
     constructor() {
-        this.position = createVector(random(width - (width / 20)), random(height - (width / 20)));
-        this.consumed = false;
+        this.position = createVector(random(width), random(height));
         this.size = 15;
         this.color = createVector(150, 100, 255);
     }
