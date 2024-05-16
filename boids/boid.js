@@ -13,6 +13,7 @@ class Flock {
     run(foodList) {
         for (let boid of this.list) {
             boid.eat(foodList.list);
+            boid.forage(foodList.list);
             boid.flock(this.list);
             if (boid.update(this)) {
                 boid.draw();
@@ -34,11 +35,11 @@ class Boid {
         this.size = 15;
         this.maxForce = .05;
         this.maxSpeed = 4;
-        this.perceptionRadius = 50;
+        this.perceptionRadius = 80;
         
         // shrink functionality. Set shrinkRate = 0 for no decay.
         /* the amount that a boid shrinks each time step. If a boid shrinks smaller than minSize, it dies. */
-        this.shrinkRate = random(0.005, 0.015);
+        this.shrinkRate = random(0.005, 0.01);
         this.minSize = 5;
 
         // division. Upon exceeding maxSize, the boid divides into two boids of size 2/3 the original
@@ -48,6 +49,7 @@ class Boid {
         this.alignmentBias = 1;
         this.cohesionBias = 1;
         this.seperationBias = 1.7;
+        this.forageBias = 1;
     }
 
     update(flock) {
@@ -121,7 +123,6 @@ class Boid {
         this.acceleration.add(this.align(flock).mult(this.alignmentBias));
         this.acceleration.add(this.cohere(flock).mult(this.cohesionBias));
         this.acceleration.add(this.separate(flock).mult(this.seperationBias));
-        //this.acceleration.add(this.forage(flock));
         this.colorify(flock);
     }
 
@@ -210,7 +211,7 @@ class Boid {
             steer.sub(this.color);
             steer.limit(this.maxForce * 25);
         }
-        this.color.add(steer);
+        this.color.add(steer.mult(this.forageBias));
     }
 
     avoidObjects(objects) {
@@ -237,48 +238,44 @@ class Boid {
     }
 
     eat(foodList) {
-        let nearestFood; // TODO: ok to use this uninitialized?
-        let steer = createVector();
-
         for (let food of foodList) {
             let dist = this.position.dist(food.position);
             
             // food consumed
             if (dist < food.size) {
-                //remove food from foodList
+                //remove food from list
                 let idx = foodList.indexOf(food);
                 if (idx != -1) {
                 foodList.splice(idx, 1);
-                // give foodSize to boid
+                
+                // grow boid
                 this.size += food.size / 2;
+                console.log("boid ate, now size: ", this.size);
                 }
             }
         }
     }
 
     forage(foodList) {
-        let nearestFood; // TODO: ok to use this uninitialized?
-        let steer = createVector();
-
+        let nearestFood = null;
+        let nearestDist = Infinity;
+        
         for (let food of foodList) {
             let dist = this.position.dist(food.position);
             
             // seek food: determine the nearest food and steer towards it
-            if (dist < this.perceptionRadius) {
-                if (nearestFood) {
-                    // set new nearestFood target
-                    if (dist < this.position.dist(nearestFood.position)) {
-                        nearestFood = food;
-                    }
-                } else {
-                    nearestFood = food;
-                }
+            if (dist < this.perceptionRadius && dist < nearestDist) {
+                nearestDist = dist;
+                nearestFood = food.position.copy();
             }
         }
-
-        steer.setMag(this.maxSpeed);
-        steer.sub(this.velocity);
-        steer.limit(this.maxForce);
-        return steer;
+        
+        if (nearestFood != null) {
+            let desired = p5.Vector.sub(nearestFood, this.position);
+            desired.setMag(this.maxSpeed);
+            let steer = p5.Vector.sub(desired, this.velocity);
+            steer.limit(this.maxForce);
+            this.acceleration.add(steer);
+        }
     }
 }

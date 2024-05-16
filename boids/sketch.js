@@ -19,3 +19,7 @@ function draw() {
   flock.run(foodList);
   foodList.run();
 }
+
+function mousePressed() {
+  flock.genBoid(mouseX, mouseY);
+}
