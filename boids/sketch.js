@@ -21,13 +21,12 @@ function draw() {
 }
 
 
-// click to generate boid. hold shift to generate predator.
+// click to generate boid. hold shift to generate predator. space to generate player.
 function mousePressed() {
   if (keyIsDown(SHIFT)) {
     flock.genBoid(mouseX, mouseY, BoidType.PREDATOR);
   } 
   else if (keyIsDown(32)) {
-    console.log("tried to make player");
     flock.genBoid(mouseX, mouseY, BoidType.PLAYER_PREDATOR);
   }
   else {

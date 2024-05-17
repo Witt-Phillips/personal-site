@@ -1,76 +1,28 @@
 /*
-Flock
-    * constructor(size) - Initializes a new `Flock` instance with a specified number of boids. Arguments: `size` (number): The number of boids to generate in the flock. Returns: A new instance of `Flock`.
-    * genBoid(x, y) - Generates a new boid at the specified coordinates and adds it to the flock. Arguments: `x` (number): The x-coordinate for the new boid. `y` (number): The y-coordinate for the new boid. Returns: void.
-    * run(foodList) - Runs the simulation for the flock, making each boid perform its actions and rendering them. Arguments: `foodList` (object): The list of food items available for the boids. Returns: void.
-
 Boid
-    * constructor(x, y) - Initializes a new `Boid` instance at the specified coordinates. Arguments: `x` (number): The x-coordinate for the new boid. `y` (number): The y-coordinate for the new boid. Returns: A new instance of `Boid`.
+    * constructor(x, y, type) - Initializes a new `Boid` instance at the specified coordinates with a given type. Arguments: `x` (number): The x-coordinate for the new boid. `y` (number): The y-coordinate for the new boid. `type` (string): The type of the new boid. Returns: A new instance of `Boid`.
+    * remove(flock) - Removes the boid from the flock. Arguments: `flock` (object): The flock object containing all boids. Returns: boolean (true if the boid was removed, false otherwise).
     * update(flock) - Updates the boid's position, handles wrapping around the screen, and checks for shrinking and dividing. Arguments: `flock` (object): The flock object containing all boids. Returns: boolean (true if the boid is still active, false if it should be removed).
     * wrap() - Wraps the boid around the screen edges if it goes out of bounds and changes its color. Arguments: None. Returns: void.
     * draw() - Draws the boid on the canvas. Arguments: None. Returns: void.
-    * flock(flock) - Applies flocking behavior to the boid by calculating alignment, cohesion, and separation forces. Arguments: `flock` (object): The flock object containing all boids. Returns: void.
-    * align(flock) - Calculates the alignment force for the boid. Arguments: `flock` (object): The flock object containing all boids. Returns: p5.Vector (alignment force).
-    * cohere(flock) - Calculates the cohesion force for the boid. Arguments: `flock` (object): The flock object containing all boids. Returns: p5.Vector (cohesion force).
-    * separate(flock) - Calculates the separation force for the boid. Arguments: `flock` (object): The flock object containing all boids. Returns: p5.Vector (separation force).
+    * flock(flock, type) - Applies flocking behavior to the boid by calculating alignment, cohesion, and separation forces. Arguments: `flock` (object): The flock object containing all boids. `type` (string): The type of boids to consider for flocking behavior. Returns: void.
+    * align(flock, type) - Calculates the alignment force for the boid. Arguments: `flock` (object): The flock object containing all boids. `type` (string): The type of boids to consider for alignment behavior. Returns: p5.Vector (alignment force).
+    * cohere(flock, type) - Calculates the cohesion force for the boid. Arguments: `flock` (object): The flock object containing all boids. `type` (string): The type of boids to consider for cohesion behavior. Returns: p5.Vector (cohesion force).
+    * separate(flock, type) - Calculates the separation force for the boid. Arguments: `flock` (object): The flock object containing all boids. `type` (string): The type of boids to consider for separation behavior. Returns: p5.Vector (separation force).
     * colorify(flock) - Adjusts the color of the boid based on the average color of nearby boids. Arguments: `flock` (object): The flock object containing all boids. Returns: void.
-    * avoidObjects(objects) - Calculates the avoidance force to keep the boid away from objects. Arguments: `objects` (array): Array of objects to avoid. Returns: p5.Vector (avoidance force).
     * eat(foodList) - Consumes food if it is within range and grows the boid. Arguments: `foodList` (array): The list of food items. Returns: void.
     * forage(foodList) - Seeks the nearest food within the perception radius and steers towards it. Arguments: `foodList` (array): The list of food items. Returns: void.
-    * hunt(flock)
+    * hunt(flock) - Seeks the nearest prey within the perception radius and steers towards it. If the prey is within consuming range, the predator grows and the prey is removed from the flock. Arguments: `flock` (object): The flock object containing all boids. Returns: void.
+    * flee(flock) - Calculates the fleeing force to avoid predators. Arguments: `flock` (object): The flock object containing all boids. Returns: void.
+    * handleInput() - Handles user input to control the player boid's movement based on arrow key inputs. Arguments: None. Returns: void.
+    * munchBoid(flock) - Consumes the nearest boid within consuming range and grows the boid. Arguments: `flock` (object): The flock object containing all boids. Returns: void.
 */
+
 const BoidType = {
     PREY: 'prey',
     PREDATOR: 'predator',
     PLAYER_PREDATOR: 'player_predator',
 };
-
-class Flock {
-    constructor(preyNum = 10, predatorNum = 0) {
-        this.list = [];
-        for (let i = 0; i < preyNum; i++) {
-            this.genBoid(random(width), random(height));
-        }
-        for (let i = 0; i < predatorNum; i++) {
-            this.genBoid(random(width), random(height), BoidType.PREDATOR);
-        }
-    }
-
-    genBoid(x, y, type = BoidType.PREY) {
-        this.list.push(new Boid(x, y, type));
-    }
-
-    run(foodList) {
-        for (let boid of this.list) {
-            switch (boid.type) {
-                case BoidType.PREY:
-                    boid.eat(foodList.list);
-                    boid.forage(foodList.list);
-                    boid.flock(this.list);
-                    boid.flee(this.list);
-                    boid.colorify(this.list);
-                    break;
-                case BoidType.PREDATOR:
-                    boid.hunt(this.list);
-                    break;
-                case BoidType.PLAYER_PREDATOR:
-                    console.log("got player");
-                    boid.flock(this.list, BoidType.PLAYER_PREDATOR);
-                    boid.handleInput();
-                    boid.munchBoid(this.list);
-                    boid.colorify(this.list);
-                    break;
-                default:
-                    console.error("invalid type reached in boid.run()");
-                    break;
-            }
-            
-            if (boid.update(this)) {
-                boid.draw();
-            }
-          }
-    }
-}
 
 class Boid {
     /* Utils */
