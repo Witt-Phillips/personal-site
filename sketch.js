@@ -3,7 +3,7 @@ let foodList;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  
+
   // init & respawn food
   foodList = new FoodList(10, 750);
   setInterval(() => {
@@ -32,4 +32,8 @@ function mousePressed() {
   else {
     flock.genBoid(mouseX, mouseY);
   }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
