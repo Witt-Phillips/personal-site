@@ -20,8 +20,11 @@ class Flock {
         this.list.push(new Boid(x, y, type));
     }
 
-    run(foodList) {
+    run(foodList, aliSli, cohSli, sepSli) {
         for (let boid of this.list) {
+            boid.alignmentBias = aliSli;
+            boid.cohesionBias = cohSli;
+            boid.separationBias = sepSli;
             switch (boid.type) {
                 case BoidType.PREY:
                     boid.eat(foodList.list);

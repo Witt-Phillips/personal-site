@@ -12,17 +12,34 @@ function setup() {
 
   // init flock
   flock = new Flock(0, 0);
+
+  // sliders
+  textFont('monospace');
+  alignmentSlider = createSlider(0, 2, 1, 0.05)
+                    .addClass('mySliders')
+                    .position(50, height - 110)
+                    .size(80);
+  cohesionSlider = createSlider(0, 2, 1, 0.05)
+                    .addClass('mySliders')
+                    .position(50, height - 80)
+                    .size(80);
+  separationSlider = createSlider(0, 2, 1, 0.05)
+                    .addClass('mySliders')
+                    .position(50, height - 50)
+                    .size(80);
 }
 
 function draw() {
   background(50);
-  flock.run(foodList);
+  flock.run(foodList,
+            alignmentSlider.value(),
+            cohesionSlider.value(),
+            separationSlider.value());
   foodList.run();
-  
+
+  fill(255);
+  textSize(16);
   if (flock.list.length === 0) {
-    fill(255);
-    textSize(16);
-    textFont('monospace');
     textAlign(CENTER, CENTER);
 
     // ASCII Art Title
@@ -43,6 +60,12 @@ function draw() {
     text("----------------------------------------", width / 2, height / 2 + 90);
 
   }
+
+  //slider titles
+  textSize(14);
+  text("alignment ", 185, height - 105);
+  text("cohesion  ", 185, height - 75);
+  text("separation", 185, height - 45);
 }
 
 
