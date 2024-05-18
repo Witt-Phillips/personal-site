@@ -32,7 +32,7 @@ function draw() {
   // update slider positions
   sliders.forEach(slider => slider.updatePosition());
 
-  // update food spawn tick if changed
+  //update food spawn tick if changed
   let currentTick = sliders[6].slider.value();
   if (currentTick !== previousTick) {
     foodList.tick = currentTick;
