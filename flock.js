@@ -20,11 +20,15 @@ class Flock {
         this.list.push(new Boid(x, y, type));
     }
 
-    run(foodList, aliSli, cohSli, sepSli) {
+    run(foodList, aliSli, cohSli, sepSli, fleeSli, huntSli, eatSli) {
         for (let boid of this.list) {
             boid.alignmentBias = aliSli;
             boid.cohesionBias = cohSli;
             boid.separationBias = sepSli;
+            boid.fleeBias = fleeSli;
+            boid.huntBias = huntSli;
+            boid.forageBias = eatSli;
+            
             switch (boid.type) {
                 case BoidType.PREY:
                     boid.eat(foodList.list);
@@ -37,7 +41,6 @@ class Flock {
                     boid.hunt(this.list);
                     break;
                 case BoidType.PLAYER_PREDATOR:
-                    console.log("got player");
                     boid.flock(this.list, BoidType.PLAYER_PREDATOR);
                     boid.handleInput();
                     boid.munchBoid(this.list);

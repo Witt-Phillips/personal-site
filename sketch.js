@@ -1,9 +1,6 @@
 let flock;
 let foodList;
-let aliSliPos;
-let cohSliPos;
-let sepSliPos;
-
+let sliders = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -18,46 +15,69 @@ function setup() {
   flock = new Flock(0, 0);
 
   // sliders
-  aliSliPos = createVector(50, height - 110)
-  cohSliPos = createVector(50, height - 80);
-  sepSliPos = createVector(50, height - 50);
+  sliders.push(new Slider(sliders, "alignment", "-> travel in same direction as nearby boids"));
+  sliders.push(new Slider(sliders, "cohesion", "-> gravitate towards nearby boids"));
+  sliders.push(new Slider(sliders, "separation", "-> don't collide with other boids"));
+  sliders.push(new Slider(sliders, "flee", "-> avoid predators (if prey)", 0, 6, 3)); // TODO: make flee bias higher
+  sliders.push(new Slider(sliders, "hunt", "-> find prey (if predator)")); // TODO: make flee bias higher
+  sliders.push(new Slider(sliders, "eat", "-> seek food (if prey)")); // TODO: make flee bias higher
 
-  alignmentSlider = createSlider(0, 2, 1, 0.05)
-                    .addClass('mySliders')
-                    .position(aliSliPos.x, aliSliPos.y)
-                    .size(80);
-  cohesionSlider = createSlider(0, 2, 1, 0.05)
-                    .addClass('mySliders')
-                    .position(cohSliPos.x, cohSliPos.y)
-                    .size(80);
-  separationSlider = createSlider(0, 2, 1, 0.05)
-                    .addClass('mySliders')
-                    .position(sepSliPos.x, sepSliPos.y)
-                    .size(80);
+
 }
 
 function draw() {
+  //setup
   background(50);
-  // update slider positions
-  aliSliPos = createVector(50, height - 110)
-  cohSliPos = createVector(50, height - 80);
-  sepSliPos = createVector(50, height - 50);
-  alignmentSlider.position(aliSliPos.x, aliSliPos.y);
-  cohesionSlider.position(cohSliPos.x, cohSliPos.y);
-  separationSlider.position(sepSliPos.x, sepSliPos.y);
 
+  // update slider positions
+  sliders.forEach(slider => slider.updatePosition());
+
+  // run simulation
   flock.run(foodList,
-            alignmentSlider.value(),
-            cohesionSlider.value(),
-            separationSlider.value());
+            sliders[0].slider.value(),
+            sliders[1].slider.value(),
+            sliders[2].slider.value(),
+            sliders[3].slider.value(),
+            sliders[4].slider.value(),
+            sliders[5].slider.value()
+          );
+  //update food
   foodList.run();
 
+  // title slide & slider descriptions
   fill(255);
   textSize(16);
   textFont('monospace');
-
   if (flock.list.length === 0) {
-    textAlign(CENTER, CENTER);
+    titleSlide();
+    sliderTitle();
+    sliders.forEach(slider => slider.displayDescription());
+  }
+
+  //slider titles
+  sliders.forEach(slider => slider.displayLabel());
+}
+
+
+// click to generate boid. hold shift to generate predator. space to generate player.
+function mousePressed() {
+  if (keyIsDown(SHIFT)) {
+    flock.genBoid(mouseX, mouseY, BoidType.PREDATOR);
+  } 
+  else if (keyIsDown(32)) {
+    flock.genBoid(mouseX, mouseY, BoidType.PLAYER_PREDATOR);
+  }
+  else {
+    flock.genBoid(mouseX, mouseY);
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function titleSlide() {
+  textAlign(CENTER, CENTER);
 
     // ASCII Art Title
     text(" _____   __ _ _   _   _        ___       _     _     ", width / 2, height / 2 - 220);
@@ -80,44 +100,21 @@ function draw() {
 
     // shoutout && credit
     textAlign(RIGHT, CENTER);
-    text("~ shoutout to the boid day 1 julia ~", width - 20, height - 30);
-
-    // slider explanation
-    textAlign(LEFT, CENTER);
-    text("-------------------- weight (prey) boids' behaviors", 90, height - 150);
-    text("|", 87, height - 140);
-    text("v", 87, height - 130);
-
-    //slider labels
-    text("-> travel in same direction as nearby boids", aliSliPos.x + 190, aliSliPos.y + 5);
-    text("-> gravitate towards nearby boids", cohSliPos.x + 190, cohSliPos.y + 5);
-    text("-> don't collide with other boids", sepSliPos.x + 190, sepSliPos.y + 5);
-
-
-
-  }
-  //slider titles
-  textSize(14);
-  textAlign(CENTER, CENTER);
-  text("alignment ", aliSliPos.x + 140, aliSliPos.y + 5);
-  text("cohesion  ", cohSliPos.x + 140, cohSliPos.y + 5);
-  text("separation", sepSliPos.x + 140, sepSliPos.y + 5);
+    text("~ shoutout julia ~", width - 20, height - 30);
 }
 
-
-// click to generate boid. hold shift to generate predator. space to generate player.
-function mousePressed() {
-  if (keyIsDown(SHIFT)) {
-    flock.genBoid(mouseX, mouseY, BoidType.PREDATOR);
-  } 
-  else if (keyIsDown(32)) {
-    flock.genBoid(mouseX, mouseY, BoidType.PLAYER_PREDATOR);
+function sliderTitle() {
+  let x = 50 + 40;
+  let y;
+  if (sliders.length == 0) {
+    console.error("sliderTitle: found no sliders");
+    return;
+  } else {
+    y = sliders[sliders.length - 1].pos.y - 20;
   }
-  else {
-    flock.genBoid(mouseX, mouseY);
-  }
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  // slider explanation
+  textAlign(LEFT, CENTER);
+  text("------ weight boids' behaviors", x, y - 20);
+  text("|", x, y - 10);
+  text("v", x, y);
 }
