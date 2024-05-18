@@ -1,28 +1,28 @@
 let flock;
 let foodList;
 let sliders = [];
+let foodSpawnInterval;
+let previousTick; // tick of foodRate at previous draw() loop
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-
-  // init & respawn food
-  foodList = new FoodList(10, 750);
-  setInterval(() => {
-    foodList.add();
-  }, foodList.tick);
-
-  // init flock
-  flock = new Flock(0, 0);
 
   // sliders
   sliders.push(new Slider(sliders, "alignment", "-> travel in same direction as nearby boids"));
   sliders.push(new Slider(sliders, "cohesion", "-> gravitate towards nearby boids"));
   sliders.push(new Slider(sliders, "separation", "-> don't collide with other boids"));
-  sliders.push(new Slider(sliders, "flee", "-> avoid predators (if prey)", 0, 6, 3)); // TODO: make flee bias higher
-  sliders.push(new Slider(sliders, "hunt", "-> find prey (if predator)")); // TODO: make flee bias higher
-  sliders.push(new Slider(sliders, "eat", "-> seek food (if prey)")); // TODO: make flee bias higher
+  sliders.push(new Slider(sliders, "flee", "-> avoid predators (if prey)", 0, 6, 3));
+  sliders.push(new Slider(sliders, "hunt", "-> find prey (if predator)")); 
+  sliders.push(new Slider(sliders, "eat", "-> seek food (if prey)")); 
+  sliders.push(new Slider(sliders, "foodRate", "-> control how quickly food spawns", 250, 1250, 750)); // TODO: make not inverted (now more is slower)
 
-
+    // init & respawn food
+    foodList = new FoodList(10, sliders[6].slider.value());
+    setFoodSpawnInterval(foodList.tick);
+    previousTick = foodList.tick;
+  
+    // init flock
+    flock = new Flock(0, 0);
 }
 
 function draw() {
@@ -31,6 +31,14 @@ function draw() {
 
   // update slider positions
   sliders.forEach(slider => slider.updatePosition());
+
+  // update food spawn tick if changed
+  let currentTick = sliders[6].slider.value();
+  if (currentTick !== previousTick) {
+    foodList.tick = currentTick;
+    setFoodSpawnInterval(foodList.tick);
+    previousTick = currentTick;
+  }
 
   // run simulation
   flock.run(foodList,
@@ -56,6 +64,16 @@ function draw() {
 
   //slider titles
   sliders.forEach(slider => slider.displayLabel());
+}
+
+// control the rate at which food spawns
+function setFoodSpawnInterval(tick) {
+  if (foodSpawnInterval) {
+    clearInterval(foodSpawnInterval);
+  }
+  foodSpawnInterval = setInterval(() => {
+    foodList.add();
+  }, tick);
 }
 
 
