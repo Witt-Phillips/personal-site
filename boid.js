@@ -109,8 +109,6 @@ class Boid {
             this.size = this.size * 2/3;
             flock.genBoid(this.position.x + random(-10, 10), this.position.y + random(-10, 10), this.type); //TODO: give generate boid same coords
         }
-
-
         return true;
     }
 
