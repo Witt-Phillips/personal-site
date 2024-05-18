@@ -1,22 +1,17 @@
 class Slider {
-    constructor(sliders, label, description, min = 0, max = 2, start = 1, step = 0.05, width = 80, x = 50, y = 0) {
+    constructor(sliders, label, description, min = 0, max = 2, start = 1, step = 0.05, width = 80, x = 50) {
         //position already written to
-        if (sliders.length === 0) {
-            y = height - 50;
-        } else {
-            y = sliders[sliders.length - 1].pos.y - 30;
-        }
-        this.pos = createVector(x, y);
         this.width = width;
         this.label = label;
         this.description = description;
         this.slider = createSlider(min, max, start, step)
                       .addClass('mySliders')
-                      .position(this.pos.x, this.pos.y)
                       .size(this.width);
+        this.updatePosition(sliders.length);
     }
 
-    updatePosition() {
+    updatePosition(idx) {
+        this.pos = createVector(50, height - 50 - (30 * idx));
         this.slider.position(this.pos.x, this.pos.y); // TODO - window height thing here?
     }
 

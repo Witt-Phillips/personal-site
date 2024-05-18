@@ -29,9 +29,6 @@ function draw() {
   //setup
   background(50);
 
-  // update slider positions
-  sliders.forEach(slider => slider.updatePosition());
-
   //update food spawn tick if changed
   let currentTick = sliders[6].slider.value();
   if (currentTick !== previousTick) {
@@ -92,6 +89,9 @@ function mousePressed() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  
+  // update slider positions
+  sliders.forEach((slider, idx) => slider.updatePosition(idx));
 }
 
 function titleSlide() {
