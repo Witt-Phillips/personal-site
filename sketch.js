@@ -13,7 +13,7 @@ function setup() {
   sliders.push(new Slider(sliders, "separation", "-> don't collide with other boids"));
   sliders.push(new Slider(sliders, "flee", "-> avoid predators (if prey)", 0, 6, 3));
   sliders.push(new Slider(sliders, "hunt", "-> find prey (if predator)")); 
-  sliders.push(new Slider(sliders, "eat", "-> seek food (if prey)")); 
+  sliders.push(new Slider(sliders, "eat", "-> seek food (if prey)", 0, 4, 2)); 
   sliders.push(new Slider(sliders, "foodRate", "-> control how quickly food spawns", 100, 1100, 600)); // TODO: make not inverted (now more is slower)
 
     // init & respawn food

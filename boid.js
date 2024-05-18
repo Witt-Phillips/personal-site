@@ -255,7 +255,7 @@ class Boid {
             steer.sub(this.color);
             steer.limit(this.maxForce * 25);
         }
-        this.color.add(steer.mult(this.forageBias));
+        this.color.add(steer);
     }
 
     // deprecated: update for consume animation.
@@ -294,7 +294,7 @@ class Boid {
             desired.setMag(this.maxSpeed);
             let steer = p5.Vector.sub(desired, this.velocity);
             steer.limit(this.maxForce);
-            this.acceleration.add(steer);
+            this.acceleration.add(steer.mult(this.forageBias));
         }
     }
     
